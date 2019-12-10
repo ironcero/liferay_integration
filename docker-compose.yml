@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: changeit
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - dev_network
+  liferay:
+    container_name: liferay
+    image: liferay/dxp:7.2.10.1
+    depends_on: 
+      - mysql
+      - elasticsearch
+    ports:
+      - 8080:8080
+      - 11311:11311
+      - 8000:8000
+      - 8099:8099
+    volumes:
+      - ./liferay:/mnt/liferay
+    networks:
+      - dev_network
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.5
+    networks:
+      - dev_network
+    environment:
+      - cluster.name=LiferayElasticsearchCluster
+      - node.name=LiferayNode
+      - bootstrap.memory_lock=true
+      - node.master=true
+      - node.data=true
+      - network.host=elasticsearch
+      - network.bind_host=0.0.0.0
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,X-User
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms256m -Xmx512m"
+    volumes:
+      - ./elastic/data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9300:9300"
+      - "9200:9200"
+  fakesmtp:
+    container_name: fakesmtp
+    image: munkyboy/fakesmtp
+    volumes:
+      - ./fakemail:/var/mail
+    networks: 
+      - dev_network
+networks:
+  dev_network:
