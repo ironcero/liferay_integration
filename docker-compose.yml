@@ -80,5 +80,16 @@ services:
       - ./fakemail:/var/mail
     networks: 
       - dev_network
+  jenkins:
+    container_name: jenkins
+    build: ./jenkins/build
+    volumes: 
+      - ./jenkins/home:/var/jenkins_home
+      - ./jenkins/security.groovy:/usr/share/jenkins/ref/init.groovy.d/security.groovy
+    environment: 
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    ports:
+      - "8090:8080"
+      - "50000:50000"
 networks:
   dev_network:
