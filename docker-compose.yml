@@ -33,6 +33,7 @@ services:
       - 8099:8099
     volumes:
       - ./liferay:/mnt/liferay
+      - ./liferay/deploy:/mnt/liferay/deploy
     networks:
       - dev_network
     healthcheck:
@@ -86,6 +87,7 @@ services:
     volumes: 
       - ./jenkins/home:/var/jenkins_home
       - ./jenkins/security.groovy:/usr/share/jenkins/ref/init.groovy.d/security.groovy
+      - ./liferay/deploy:/var/liferay_deploy
     environment: 
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
     ports:
